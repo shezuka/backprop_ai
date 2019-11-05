@@ -25,7 +25,7 @@ class Neuron {
     vector<Connection> _connections;
     int _value = 0;
 
-    double LEARN_RATE = 0.5;
+    double LEARN_RATE = 0.1;
 
 public:
     Neuron(size_t index, size_t connections_num): _index(index) {

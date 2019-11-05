@@ -31,7 +31,7 @@ public:
         }
     }
 
-    Ai* feed_forward(const vector<double> &seed) {
+    Ai *feed_forward(const vector<double> &seed) {
         // Init input layer
         for (size_t i = 0; i < seed.size(); i++) {
             _layers.front()[i].set_output(seed[i]);
@@ -49,12 +49,12 @@ public:
         return this;
     }
 
-    Ai* back_prop(const vector<double> &seed) {
+    Ai *back_prop(const vector<double> &seed) {
         for (Neuron &output_neuron: _layers.back()) {
             output_neuron.calc_error(seed[output_neuron.index()]);
         }
 
-        for (size_t i = _layers.size() - 2; i != ((size_t)-1); i--) {
+        for (size_t i = _layers.size() - 2; i != ((size_t) -1); i--) {
             Layer &next_layer = _layers[i + 1];
             for (Neuron &neuron: _layers[i]) {
                 neuron.back_prop(next_layer);
@@ -79,8 +79,37 @@ public:
         return top_neuron().output();
     }
 
-    double top_value() const {
+    int top_value() const {
         return top_neuron().value();
+    }
+
+    unsigned train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs,
+                   const vector<int> &output_values, unsigned MAX_GENERATION = 10000) {
+        for (unsigned generation = 0; generation < MAX_GENERATION; generation++) {
+            // Train
+            for (size_t i = 0; i < inputs.size(); i++) {
+                const auto &input_part = inputs[i];
+                const auto &output_part = outputs[i];
+                this->feed_forward(input_part)->back_prop(output_part);
+            }
+
+            // Check
+            bool all_success = true;
+            for (size_t i = 0; i < inputs.size(); i++) {
+                const auto &input_part = inputs[i];
+                const auto &output_part = outputs[i];
+                if (this->feed_forward(inputs[i])->top_value() != output_values[i]) {
+                    all_success = false;
+                    break;
+                }
+            }
+
+            if (all_success) {
+                return generation;
+            }
+        }
+
+        return MAX_GENERATION;
     }
 };
 
