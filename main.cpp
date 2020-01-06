@@ -36,7 +36,7 @@ int main() {
             1, 1, 1, 1, 0, 0, 0, 0
     };
 
-    const auto generations = ai.train(train_input_data, train_output_data, output_values, 100000);
+    const auto generations = ai.train(train_input_data, train_output_data, output_values, 5000, false);
     cout << "Trained for " << generations << " generations" << endl;
 
     cout << ai.feed_forward({1, 1})->top_value() << endl;
