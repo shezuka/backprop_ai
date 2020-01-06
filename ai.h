@@ -36,8 +36,10 @@ public:
 
     int top_value() const;
 
+    void train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, unsigned generations = 10000);
+
     unsigned train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs,
-                   const vector<int> &output_values, unsigned MAX_GENERATION = 10000, bool until_result = true);
+                   const vector<int> &output_values, unsigned MAX_GENERATION = 10000);
 };
 
 #endif //AI_AI_H

@@ -57,32 +57,35 @@ int Ai::top_value() const {
     return top_neuron().value();
 }
 
-unsigned
-Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, const vector<int> &output_values,
-          unsigned int MAX_GENERATION, bool until_result) {
-    for (unsigned generation = 0; generation < MAX_GENERATION; generation++) {
-        // Train
+void Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, unsigned generations) {
+    for (unsigned generation = 0; generation < generations; generation++) {
         for (size_t i = 0; i < inputs.size(); i++) {
             const auto &input_part = inputs[i];
             const auto &output_part = outputs[i];
             this->feed_forward(input_part)->back_prop(output_part);
         }
+    }
+}
 
-        if (until_result) {
-            // Check is result success and break if true
-            bool all_success = true;
-            for (size_t i = 0; i < inputs.size(); i++) {
-                const auto &input_part = inputs[i];
-                const auto &output_part = outputs[i];
-                if (this->feed_forward(inputs[i])->top_value() != output_values[i]) {
-                    all_success = false;
-                    break;
-                }
-            }
+unsigned
+Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, const vector<int> &output_values,
+          unsigned int MAX_GENERATION) {
+    for (unsigned generation = 0; generation < MAX_GENERATION; generation++) {
+        this->train(inputs, outputs, 1);
 
-            if (all_success) {
-                return generation;
+        // Check is result success and break if true
+        bool all_success = true;
+        for (size_t i = 0; i < inputs.size(); i++) {
+            const auto &input_part = inputs[i];
+            const auto &output_part = outputs[i];
+            if (this->feed_forward(inputs[i])->top_value() != output_values[i]) {
+                all_success = false;
+                break;
             }
+        }
+
+        if (all_success) {
+            return generation;
         }
     }
 
