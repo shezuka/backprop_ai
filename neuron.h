@@ -4,12 +4,12 @@
 #include <cstdlib>
 #include <cmath>
 #include <vector>
-#include <iostream>
+#include <memory>
 
 using namespace std;
 
 class Neuron;
-using Layer = vector<Neuron>;
+using Layer = vector<Neuron*>;
 
 struct Connection {
     double weight = 0.0;
@@ -18,6 +18,7 @@ struct Connection {
 };
 
 class Neuron {
+protected:
     const size_t _index;
     double _input = 0.0;
     double _output = 0.0;
@@ -30,7 +31,7 @@ class Neuron {
 public:
     Neuron(size_t index, size_t connections_num);
 
-    void feed_forward(const Layer &prev_layer);
+    virtual void feed_forward(const Layer &prev_layer);
 
     void back_prop(const Layer &next_layer);
 

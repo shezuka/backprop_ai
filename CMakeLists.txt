@@ -3,4 +3,4 @@ project(ai)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ai main.cpp ai.h neuron.h ai.cpp neuron.cpp)
+add_executable(ai main.cpp ai.h neuron.h ai.cpp neuron.cpp neuron_bias.cpp neuron_bias.h)
