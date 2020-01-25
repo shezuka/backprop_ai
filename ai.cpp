@@ -1,13 +1,18 @@
 #include "ai.h"
+#include "neuron_bias.h"
 
-Ai::Ai(const vector<int> &topology, const vector<int> &output_values) {
+Ai::Ai(const vector<int> &topology, const vector<int> &output_values, bool use_bias) {
     // Init input and hidden layers
     for (size_t layer_index = 0; layer_index < topology.size() - 1; layer_index++) {
         _layers.emplace_back();
         const size_t neurons_num = topology[layer_index];
-        const size_t next_layer_neurons = topology[layer_index + 1];
+        const size_t next_layer_neurons = topology[layer_index + 1] + use_bias;
         for (size_t neuron_index = 0; neuron_index < neurons_num; neuron_index++) {
-            _layers.back().emplace_back(neuron_index, next_layer_neurons);
+            _layers.back().push_back(new Neuron(neuron_index, next_layer_neurons));
+        }
+
+        if (use_bias) {
+            _layers.back().push_back(new NeuronBias(_layers.back().size(), next_layer_neurons));
         }
     }
 
@@ -15,23 +20,25 @@ Ai::Ai(const vector<int> &topology, const vector<int> &output_values) {
     _layers.emplace_back();
     const size_t output_layer_neurons = topology[topology.size() - 1];
     for (size_t neuron_index = 0; neuron_index < output_layer_neurons; neuron_index++) {
-        _layers.back().emplace_back(neuron_index, 0);
-        _layers.back().back().set_value(output_values[neuron_index]);
+        _layers.back().push_back(new Neuron(neuron_index, 0));
+        _layers.back().back()->set_value(output_values[neuron_index]);
     }
 }
 
 Ai *Ai::feed_forward(const vector<double> &seed) {
     // Init input layer
+    auto &input_layer = _layers.front();
     for (size_t i = 0; i < seed.size(); i++) {
-        _layers.front()[i].set_output(seed[i]);
+        auto neuron = input_layer[i];
+        neuron->set_output(seed[i]);
     }
 
     // Feed forward
     for (size_t i = 1; i < _layers.size(); i++) {
         Layer &prev_layer = _layers[i - 1];
         Layer &layer = _layers[i];
-        for (Neuron &neuron: layer) {
-            neuron.feed_forward(prev_layer);
+        for (auto &neuron: layer) {
+            neuron->feed_forward(prev_layer);
         }
     }
 
@@ -41,9 +48,9 @@ Ai *Ai::feed_forward(const vector<double> &seed) {
 const Neuron &Ai::top_neuron() const {
     const Layer &output = _layers.back();
     const Neuron *neuron = nullptr;
-    for (const Neuron &n: output) {
-        if (neuron == nullptr || n.output() > neuron->output()) {
-            neuron = &n;
+    for (const auto &n: output) {
+        if (neuron == nullptr || n->output() > neuron->output()) {
+            neuron = n;
         }
     }
     return *neuron;
@@ -90,4 +97,13 @@ Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &ou
     }
 
     return MAX_GENERATION;
+}
+
+Ai::~Ai() {
+    for (const auto &layer: _layers) {
+        for (const auto &neuron: layer) {
+            delete neuron;
+        }
+    }
+    _layers.clear();
 }

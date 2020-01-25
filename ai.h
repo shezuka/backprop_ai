@@ -11,19 +11,21 @@ class Ai {
     vector<Layer> _layers;
 
 public:
-    Ai(const vector<int> &topology, const vector<int> &output_values);
+    Ai(const vector<int> &topology, const vector<int> &output_values, bool use_bias = true);
+
+    ~Ai();
 
     Ai *feed_forward(const vector<double> &seed);
 
     Ai *back_prop(const vector<double> &seed) {
-        for (Neuron &output_neuron: _layers.back()) {
-            output_neuron.calc_error(seed[output_neuron.index()]);
+        for (auto &output_neuron: _layers.back()) {
+            output_neuron->calc_error(seed[output_neuron->index()]);
         }
 
         for (size_t i = _layers.size() - 2; i != ((size_t) -1); i--) {
             Layer &next_layer = _layers[i + 1];
-            for (Neuron &neuron: _layers[i]) {
-                neuron.back_prop(next_layer);
+            for (auto &neuron: _layers[i]) {
+                neuron->back_prop(next_layer);
             }
         }
 

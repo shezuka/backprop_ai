@@ -1,3 +1,4 @@
+#include <random>
 #include "neuron.h"
 
 Neuron::Neuron(size_t index, size_t connections_num) : _index(index) {
@@ -10,22 +11,22 @@ Neuron::Neuron(size_t index, size_t connections_num) : _index(index) {
 void Neuron::feed_forward(const Layer &prev_layer) {
     _input = 0.0;
     for (auto &prev_neuron: prev_layer) {
-        _input += (prev_neuron._output * prev_neuron._connections[_index].weight);
+        _input += (prev_neuron->_output * prev_neuron->_connections[_index].weight);
     }
     _output = activate(_input);
 }
 
 void Neuron::back_prop(const Layer &next_layer) {
     double total_error = 0.0;
-    for (const Neuron &next_neuron: next_layer) {
-        total_error += next_neuron._error * _connections[next_neuron._index].weight;
-        _connections[next_neuron._index].delta = LEARN_RATE * next_neuron._error * _output;
-        _connections[next_neuron._index].change = LEARN_RATE * next_neuron._error;
+    for (const auto &next_neuron: next_layer) {
+        total_error += next_neuron->_error * _connections[next_neuron->_index].weight;
+        _connections[next_neuron->_index].delta = LEARN_RATE * next_neuron->_error * _output;
+        _connections[next_neuron->_index].change = LEARN_RATE * next_neuron->_error;
     }
     _error = total_error * reverse_activate(_input);
 
-    for (const Neuron &next_neuron: next_layer) {
-        _connections[next_neuron._index].weight = _connections[next_neuron._index].weight + _connections[next_neuron._index].delta;
+    for (const auto &next_neuron: next_layer) {
+        _connections[next_neuron->_index].weight = _connections[next_neuron->_index].weight + _connections[next_neuron->_index].delta;
     }
 }
 
@@ -70,6 +71,9 @@ double Neuron::reverse_activate(double x) {
 }
 
 double Neuron::random_weight() {
+//    static mt19937_64 gen;
+//    static uniform_real_distribution<double> dist;
+//    return dist(gen, uniform_real_distribution<double>::param_type(0.0, 1.0));
     double f = (double)rand() / RAND_MAX;
     return 0.0 + f * (1.0 - 0.0);
 }
