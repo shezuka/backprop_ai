@@ -24,7 +24,6 @@ protected:
     double _output = 0.0;
     double _error = 0.0;
     vector<Connection> _connections;
-    int _value = 0;
 
     double LEARN_RATE = 0.1;
 
@@ -41,11 +40,7 @@ public:
 
     double output() const;
 
-    void set_output(double output);
-
-    int value() const;
-
-    void set_value(int value);
+    virtual void set_output(double output);
 
     static double activate_sigmoid(double x);
 

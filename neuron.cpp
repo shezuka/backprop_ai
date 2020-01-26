@@ -46,14 +46,6 @@ void Neuron::set_output(double output) {
     _output = output;
 }
 
-int Neuron::value() const {
-    return _value;
-}
-
-void Neuron::set_value(int value) {
-    _value = value;
-}
-
 double Neuron::activate_sigmoid(double x) {
     return 1 / (1 + exp(-x));
 }
@@ -71,9 +63,8 @@ double Neuron::reverse_activate(double x) {
 }
 
 double Neuron::random_weight() {
-//    static mt19937_64 gen;
-//    static uniform_real_distribution<double> dist;
-//    return dist(gen, uniform_real_distribution<double>::param_type(0.0, 1.0));
-    double f = (double)rand() / RAND_MAX;
-    return 0.0 + f * (1.0 - 0.0);
+    static random_device device;
+    static mt19937_64 gen(device());
+    static uniform_real_distribution<double> dist(0.0, 1.0);
+    return dist(gen);
 }
