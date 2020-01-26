@@ -1,63 +1,58 @@
 #include "ai.h"
 
 #include <iostream>
+#include <random>
+#include <cmath>
+
+using namespace std;
+
+template <typename ElementType>
+ostream& operator << (ostream &out, const vector<ElementType> &container) {
+    out << "{ ";
+    for (const auto &val: container) {
+        out << val << "; ";
+    }
+    out << "}";
+    return out;
+}
+
+template <typename SubElementType>
+ostream& operator << (ostream &out, const vector<vector<SubElementType>> &container) {
+    out << "{";
+    for (const auto &sub_container: container) {
+        out << "\t" << sub_container << ", ";
+    }
+    out << "}";
+    return out;
+}
 
 int main() {
-    ::srand(::time(nullptr));
+    vector<vector<double>> train_input;
+    vector<vector<double>> train_output;
+
+    random_device device;
+    mt19937_64 mt(device());
+    uniform_real_distribution<double> doubler(0.0, 1.0);
+    uniform_int_distribution<int> inter(0, 1);
+
+    for (size_t i = 0; i < 20; ++i) {
+        if (inter(mt)) {
+            const auto val = round(doubler(mt));
+            train_input.push_back({val, val});
+            train_output.push_back({1.0});
+        } else {
+            train_input.push_back({round(doubler(mt)), round(doubler(mt))});
+            train_output.push_back({0.0});
+        }
+    }
 
     const size_t INPUT_NUM = 2;
-    Ai ai({INPUT_NUM, 4, 2}, {1, 0});
+    Ai ai({INPUT_NUM, 8, 2});
+    ai.train(train_input, train_output, 100000);
 
-    vector<vector<double>> train_input_data = {
-            {1.0, 1.0},
-            {0.0, 0.0},
-            {100.0, 100.0},
-            {1000.0, 1000.0},
-
-            {1.0, 0.0},
-            {0.0, 1.0},
-            {100.0, 0.0},
-            {0.0, 100.0},
-    };
-
-    vector<vector<double>> train_output_data = {
-            {1.0, 0.0},
-            {1.0, 0.0},
-            {1.0, 0.0},
-            {1.0, 0.0},
-
-            {0.0, 1.0},
-            {0.0, 1.0},
-            {0.0, 1.0},
-            {0.0, 1.0},
-    };
-
-    vector<int> output_values = {
-            1, 1, 1, 1, 0, 0, 0, 0
-    };
-
-    const auto generations = ai.train(train_input_data, train_output_data, output_values, 5000);
-    cout << "Trained for " << generations << " generations" << endl;
-
-    cout << ai.feed_forward({1, 1})->top_value() << endl;
-    cout << ai.feed_forward({0, 0})->top_value() << endl;
-    cout << ai.feed_forward({0, 1})->top_value() << endl;
-    cout << ai.feed_forward({1, 0})->top_value() << endl;
-    cout << endl;
-
-
-    cout << ai.feed_forward({20, 20})->top_value() << endl;
-    cout << ai.feed_forward({20, 20})->top_value() << endl;
-    cout << ai.feed_forward({99999, 99999})->top_value() << endl;
-    cout << ai.feed_forward({99999, 99999})->top_value() << endl;
-    cout << endl;
-
-
-    cout << ai.feed_forward({20, 0})->top_value() << endl;
-    cout << ai.feed_forward({0, 20})->top_value() << endl;
-    cout << ai.feed_forward({0, 99999})->top_value() << endl;
-    cout << ai.feed_forward({99999, 0})->top_value() << endl;
-    cout << endl;
+    for (const auto &input: train_input) {
+        cout << input << " = " << ai.feed_forward(input)->output() << endl;
+    }
 
     return 0;
 }

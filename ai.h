@@ -11,37 +11,20 @@ class Ai {
     vector<Layer> _layers;
 
 public:
-    Ai(const vector<int> &topology, const vector<int> &output_values, bool use_bias = true);
+    explicit Ai(const vector<int> &topology, bool use_bias = true);
 
     ~Ai();
 
     Ai *feed_forward(const vector<double> &seed);
 
-    Ai *back_prop(const vector<double> &seed) {
-        for (auto &output_neuron: _layers.back()) {
-            output_neuron->calc_error(seed[output_neuron->index()]);
-        }
+    Ai *back_prop(const vector<double> &seed);
 
-        for (size_t i = _layers.size() - 2; i != ((size_t) -1); i--) {
-            Layer &next_layer = _layers[i + 1];
-            for (auto &neuron: _layers[i]) {
-                neuron->back_prop(next_layer);
-            }
-        }
+    const Neuron &neuron() const;
 
-        return this;
-    }
+    double output() const;
 
-    const Neuron &top_neuron() const;
-
-    double top_output() const;
-
-    int top_value() const;
-
-    void train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, unsigned generations = 10000);
-
-    unsigned train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs,
-                   const vector<int> &output_values, unsigned MAX_GENERATION = 10000);
+    void
+    train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, unsigned generations = 10000);
 };
 
 #endif //AI_AI_H
