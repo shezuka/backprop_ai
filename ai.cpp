@@ -1,7 +1,7 @@
 #include "ai.h"
 #include "neuron_bias.h"
 
-Ai::Ai(const vector<int> &topology, const vector<int> &output_values, bool use_bias) {
+Ai::Ai(const vector<int> &topology, bool use_bias) {
     // Init input and hidden layers
     for (size_t layer_index = 0; layer_index < topology.size() - 1; layer_index++) {
         _layers.emplace_back();
@@ -21,7 +21,6 @@ Ai::Ai(const vector<int> &topology, const vector<int> &output_values, bool use_b
     const size_t output_layer_neurons = topology[topology.size() - 1];
     for (size_t neuron_index = 0; neuron_index < output_layer_neurons; neuron_index++) {
         _layers.back().push_back(new Neuron(neuron_index, 0));
-        _layers.back().back()->set_value(output_values[neuron_index]);
     }
 }
 
@@ -45,7 +44,7 @@ Ai *Ai::feed_forward(const vector<double> &seed) {
     return this;
 }
 
-const Neuron &Ai::top_neuron() const {
+const Neuron &Ai::neuron() const {
     const Layer &output = _layers.back();
     const Neuron *neuron = nullptr;
     for (const auto &n: output) {
@@ -56,12 +55,8 @@ const Neuron &Ai::top_neuron() const {
     return *neuron;
 }
 
-double Ai::top_output() const {
-    return top_neuron().output();
-}
-
-int Ai::top_value() const {
-    return top_neuron().value();
+double Ai::output() const {
+    return neuron().output();
 }
 
 void Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, unsigned generations) {
@@ -74,31 +69,6 @@ void Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>
     }
 }
 
-unsigned
-Ai::train(const vector<vector<double>> &inputs, const vector<vector<double>> &outputs, const vector<int> &output_values,
-          unsigned int MAX_GENERATION) {
-    for (unsigned generation = 0; generation < MAX_GENERATION; generation++) {
-        this->train(inputs, outputs, 1);
-
-        // Check is result success and break if true
-        bool all_success = true;
-        for (size_t i = 0; i < inputs.size(); i++) {
-            const auto &input_part = inputs[i];
-            const auto &output_part = outputs[i];
-            if (this->feed_forward(inputs[i])->top_value() != output_values[i]) {
-                all_success = false;
-                break;
-            }
-        }
-
-        if (all_success) {
-            return generation;
-        }
-    }
-
-    return MAX_GENERATION;
-}
-
 Ai::~Ai() {
     for (const auto &layer: _layers) {
         for (const auto &neuron: layer) {
@@ -106,4 +76,19 @@ Ai::~Ai() {
         }
     }
     _layers.clear();
+}
+
+Ai *Ai::back_prop(const vector<double> &seed) {
+    for (auto &output_neuron: _layers.back()) {
+        output_neuron->calc_error(seed[output_neuron->index()]);
+    }
+
+    for (size_t i = _layers.size() - 2; i != ((size_t) -1); i--) {
+        Layer &next_layer = _layers[i + 1];
+        for (auto &neuron: _layers[i]) {
+            neuron->back_prop(next_layer);
+        }
+    }
+
+    return this;
 }
