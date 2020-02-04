@@ -3,10 +3,16 @@
 
 #include "types.h"
 #include <vector>
+#include <json/json.h>
+#include <string>
 
 namespace ai {
     class Ai {
         Layers _layers;
+
+        explicit Ai() = default;
+
+        void initLayersConnections();
 
     public:
         explicit Ai(const Topology &topology);
@@ -18,6 +24,10 @@ namespace ai {
         Ai *back_prop(const Outputs &outputs);
 
         Output output(uint index) const;
+
+        Json::Value toJson() const;
+
+        [[nodiscard]] static Ai *fromJson(const std::string &json);
     };
 }
 

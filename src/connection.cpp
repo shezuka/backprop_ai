@@ -13,4 +13,19 @@ namespace ai {
     Connection::Connection() {
         this->weight = random();
     }
+
+    Json::Value Connection::toJson() const {
+        Json::Value value{Json::ValueType::objectValue};
+        value["weight"] = weight;
+        value["delta"] = delta;
+
+        return value;
+    }
+
+    Connection *Connection::fromJson(const Json::Value &val) {
+        auto conn = new Connection{};
+        conn->weight = val["weight"].asDouble();
+        conn->delta = val["delta"].asDouble();
+        return conn;
+    }
 }

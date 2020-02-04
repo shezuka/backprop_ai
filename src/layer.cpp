@@ -68,4 +68,32 @@ namespace ai {
     const size_t Layer::neurons_count() const {
         return _neurons.size();
     }
+
+    Json::Value Layer::toJson() const {
+        Json::Value neuronsJson{Json::ValueType::arrayValue};
+        for (const auto neuron: _neurons) {
+            neuronsJson.append(neuron->toJson());
+        }
+
+        Json::Value value;
+        value["neurons"] = neuronsJson;
+
+        return value;
+    }
+
+    Layer* Layer::fromJson(const Json::Value &val) {
+        Json::Value neuronsJson = val["neurons"];
+
+        auto layer = new Layer{};
+        for (size_t i = 0; i < neuronsJson.size(); ++i) {
+            const auto neuronJson = neuronsJson.get(i, {});
+
+            Neuron *neuron = neuronJson["is_bias"].asBool() ? new Bias{} : new Neuron{};
+            neuron->fromJson(neuronJson);
+
+            layer->_neurons.push_back(neuron);
+        }
+
+        return layer;
+    }
 }
