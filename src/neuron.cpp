@@ -54,12 +54,15 @@ namespace ai {
     }
 
     Output Neuron::activate(Input input) {
-        return 1 / (1 + exp(-input));
+//        return 1 / (1 + exp(-input));
+        return tanh(input);
     }
 
     Output Neuron::back_activate(Output output) {
-        const auto activated = activate(output);
-        return activated * (1 - activated);
+//        const auto activated = activate(output);
+//        return activated * (1 - activated);
+        output = activate(output);
+        return 1 - output * output;
     }
 
     void Neuron::back_prop(Layer *next_layer) {
