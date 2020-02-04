@@ -1,6 +1,15 @@
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.15)
 project(ai)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(ai main.cpp ai.h neuron.h ai.cpp neuron.cpp neuron_bias.cpp neuron_bias.h)
+include_directories(include)
+
+add_executable(ai
+        main.cpp
+        src/ai.cpp
+        src/neuron.cpp
+        src/bias.cpp
+        src/layer.cpp
+        src/connection.cpp
+        )
