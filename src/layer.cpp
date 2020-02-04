@@ -28,6 +28,7 @@ namespace ai {
         assert(inputs.size() == _neurons.size() - 1);
 
         for (size_t i = 0; i < _neurons.size() - 1; ++i) {
+            _neurons[i]->input(inputs[i]);
             _neurons[i]->output(inputs[i]);
         }
 
