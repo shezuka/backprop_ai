@@ -64,6 +64,17 @@ int main() {
          << brain3->feed({1.0, 0.0})->output(0) << ", "
          << brain3->output(1)
          << endl;
+    delete brain3;
+
+    auto brain4 = ai::Ai{{2, 6, 1}};
+    for (size_t i = 0; i < 5000; ++i) {
+        brain4.feed({0.0, 0.0})->back_prop({1.0});
+        brain4.feed({0.0, 1.0})->back_prop({0.2});
+        brain4.feed({1.0, 1.0})->back_prop({-1.0});
+    }
+    cout << brain4.feed({0.0, 0.0})->output(0) << endl;
+    cout << brain4.feed({0.0, 1.0})->output(0) << endl;
+    cout << brain4.feed({1.0, 1.0})->output(0) << endl;
 
     return 0;
 }
