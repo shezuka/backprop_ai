@@ -65,6 +65,7 @@ namespace ai {
         Json::Value root;
         std::string errors;
         reader->parse(json.c_str(), json.c_str() + json.length(), &root, &errors);
+        delete reader;
 
         auto ai = new Ai{};
 
