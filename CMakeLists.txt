@@ -12,4 +12,5 @@ add_executable(ai
         src/bias.cpp
         src/layer.cpp
         src/connection.cpp
-        )
+)
+target_link_libraries(ai jsoncpp)

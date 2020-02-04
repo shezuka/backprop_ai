@@ -3,6 +3,8 @@
 
 #include "types.h"
 
+#include <json/json.h>
+
 namespace ai {
     class Neuron {
     protected:
@@ -12,6 +14,8 @@ namespace ai {
         Output _output = 0.0;
         Error _error = 0.0;
         bool _is_bias = false;
+
+        explicit Neuron() = default;
 
     public:
         explicit Neuron(uint index, uint connections_num);
@@ -28,8 +32,14 @@ namespace ai {
         void feed(Layer *prev_layer);
         void back_prop(Layer *next_layer);
 
+        Json::Value toJson() const;
+
+        void fromJson(const Json::Value &value);
+
         static Output activate(Input input);
         static Output back_activate(Output output);
+
+        friend class Layer;
     };
 }
 

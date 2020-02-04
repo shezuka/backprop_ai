@@ -75,4 +75,35 @@ namespace ai {
 
         _error = total * back_activate(_input);
     }
+
+    Json::Value Neuron::toJson() const {
+        Json::Value connectionsJson{Json::ValueType::arrayValue};
+        for (const auto connection: _connections) {
+            connectionsJson.append(connection->toJson());
+        }
+
+        Json::Value value{Json::ValueType::objectValue};
+        value["connections"] = connectionsJson;
+        value["index"] = _index;
+        value["input"] = _input;
+        value["output"] = _output;
+        value["error"] = _error;
+        value["is_bias"] = _is_bias;
+
+        return value;
+    }
+
+    void Neuron::fromJson(const Json::Value &value) {
+        const auto connectionsJson = value["connections"];
+        for (size_t i = 0; i < connectionsJson.size(); ++i) {
+            Json::Value connectionJson = connectionsJson.get(i, {});
+            _connections.push_back(Connection::fromJson(connectionJson));
+        }
+
+        _index = value["index"].asUInt();
+        _input = value["input"].asDouble();
+        _output = value["output"].asDouble();
+        _error = value["error"].asDouble();
+        _is_bias = value["is_bias"].asBool();
+    }
 }

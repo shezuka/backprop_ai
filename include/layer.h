@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include <vector>
+#include <json/json.h>
 
 namespace ai {
     class Layer {
@@ -12,6 +13,8 @@ namespace ai {
 
         void feed();
         void back_prop();
+
+        explicit Layer() = default;
 
     public:
         explicit Layer(uint neurons_num, uint next_layer_neurons);
@@ -27,6 +30,10 @@ namespace ai {
         const Neuron *neuron(uint index) const;
 
         const size_t neurons_count() const;
+
+        Json::Value toJson() const;
+
+        [[nodiscard]] static Layer* fromJson(const Json::Value &val);
     };
 }
 
